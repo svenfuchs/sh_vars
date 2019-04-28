@@ -11,7 +11,7 @@ module ShVars
     end
 
     KEY   = %r([^\s=]+)
-    WORD  = %r((\\.|(?!\s|"|'|`|\${|\$\(|\)).)+)
+    WORD  = %r((\\.|(?!\s|"|'|`|\${|\$\().))
     SPACE = %r(\s+)
     EQUAL = %r(=)
     OPEN  = %r(\$\(|\$\{)
@@ -33,7 +33,7 @@ module ShVars
     end
 
     def pair
-      double_quoted_pair || unquoted_pair
+      double_quoted_pair || unquoted_pair || empty_pair
     end
 
     def double_quoted_pair
@@ -47,6 +47,12 @@ module ShVars
       parts, part = [], nil
       parts << part while part = value
       [key, parts.join]
+    end
+
+    def empty_pair
+      key = word
+      pair = [key, ''] if key
+      pair
     end
 
     def values
@@ -80,7 +86,9 @@ module ShVars
     end
 
     def word
-      scan(WORD) unless quote? || paren?
+      chars, char = [], nil
+      chars << char while !quote? && char = scan(WORD)
+      chars.join if chars.any?
     end
 
     def space
@@ -104,7 +112,7 @@ module ShVars
 
       parts, part = [], nil
       parts << part while part = scan_quote(quote)
-      parts << value
+      parts << values
       parts << part while part = scan_quote(quote)
 
       quotes.pop
@@ -139,6 +147,10 @@ module ShVars
       return str if str
       str = scan(/#{'\\' * level * 2}#{quote}/)
       ['\\' * (level - 1), quote].join if str
+    end
+
+    def space?
+      peek(1) =~ SPACE
     end
 
     def paren?

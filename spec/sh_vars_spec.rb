@@ -3,16 +3,20 @@ RSpec.describe ShVars do
 
   let(:parse_error) { ShVars::ParseError }
 
+  specify '==FOO== FOO=foo' do
+    should eq [['==FOO==', ''], ['FOO', 'foo']]
+  end
+
   specify "FOO" do
-    should eq [['FOO', ""]]
+    should eq [['FOO', '']]
   end
 
   specify "FOO= BAR=bar" do
-    should eq [['FOO', ""], ['BAR', 'bar']]
+    should eq [['FOO', ''], ['BAR', 'bar']]
   end
 
   specify "FOO= BAR=" do
-    should eq [['FOO', ""], ['BAR', '']]
+    should eq [['FOO', ''], ['BAR', '']]
   end
 
   specify 'FOO=foo=bar' do
@@ -227,12 +231,20 @@ RSpec.describe ShVars do
     should eq [['FOO', 'foo"$(cmd \\"${FOO}\\" {} \\;)"']]
   end
 
+  specify 'FOO=-foo$((1+${bar}))' do
+    should eq [['FOO', '-foo$((1+${bar}))']]
+  end
+
   specify 'FOO=$(cmd foo)' do
     should eq [['FOO', '$(cmd foo)']]
   end
 
   specify 'FOO=http://$BAR:80' do
     should eq [['FOO', 'http://$BAR:80']]
+  end
+
+  specify 'FOO="\foo \bar"' do
+    should eq [['FOO', '"\foo \bar"']]
   end
 
   specify %q(FOO=') do

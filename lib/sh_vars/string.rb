@@ -50,6 +50,7 @@ module ShVars
     end
 
     def empty_pair
+      return if peek(1) == '='
       key = word
       pair = [key, ''] if key
       pair

@@ -127,6 +127,10 @@ RSpec.describe ShVars do
     should eq [['FOO', '$'], ['BAR', '"bar bar"']]
   end
 
+  it 'FOO=\$foo' do
+    should eq [['FOO', '\$foo']]
+  end
+
   it '`cmd`' do
     should eq [['`cmd`', '']]
   end
